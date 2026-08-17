@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planeador Docente</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <span class="eyebrow">Creador de planeaciiones docentes</span>
+      <h1>JMercury</h1>
+      <p>Facil y rapido con ayuda de IA</p>
+    </div>
+    <div class="top-actions">
+      <button id="btnGuardar" class="btn secondary">Guardar</button>
+      <button id="btnCargar" class="btn ghost">Cargar</button>
+      <button id="btnImprimir" class="btn primary">Imprimir / PDF</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="sidebar no-print">
+      <nav>
+        <button class="nav-item active" data-target="datos">1. Datos generales</button>
+        <button class="nav-item" data-target="proyecto">2. Proyecto</button>
+        <button class="nav-item" data-target="secuencia">3. Secuencia diaria</button>
+        <button class="nav-item" data-target="evaluacion">4. Evaluación</button>
+        <button class="nav-item" data-target="reflexion">5. Reflexión final</button>
+      </nav>
+      <div class="progress-card">
+        <div class="progress-label"><span>Avance</span><strong id="progressText">0%</strong></div>
+        <div class="progress-track"><div id="progressBar"></div></div>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <div id="formView">
+        <section id="datos" class="panel section-card">
+          <div class="section-heading">
+            <div><span class="step">Paso 1</span><h2>Datos generales</h2></div>
+            <span class="hint">Se guardan en tu navegador.</span>
+          </div>
+          <div class="grid grid-2">
+            <label>Nombre de la escuela<input id="escuela" type="text" placeholder="Ej. Primaria Benito Juárez" /></label>
+            <label>C.C.T.<input id="cct" type="text" placeholder="Clave de centro de trabajo" /></label>
+            <label>Zona escolar<input id="zona" type="text" /></label>
+            <label>Sector<input id="sector" type="text" /></label>
+            <label>Nombre del docente<input id="docente" type="text" /></label>
+            <label>Ciclo escolar<input id="ciclo" type="text" value="2026-2027" /></label>
+            <label>Grado<select id="grado"><option>1°</option><option>2°</option><option>3°</option><option>4°</option><option>5°</option><option>6°</option></select></label>
+            <label>Grupo<input id="grupo" type="text" placeholder="A" /></label>
+            <label>Mes<select id="mes"><option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option><option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option><option selected>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option></select></label>
+            <label>Periodo de aplicación<input id="periodo" type="text" placeholder="Ej. 1 al 25 de septiembre de 2026" /></label>
+          </div>
+        </section>
+
+        <section id="proyecto" class="panel section-card">
+          <div class="section-heading">
+            <div><span class="step">Paso 2</span><h2>Proyecto y enfoque</h2></div>
+            <button id="btnPlantillaEjemplo" class="btn small ghost" type="button">Cargar ejemplo</button>
+          </div>
+          <div class="grid grid-2">
+            <label>Nombre del proyecto<input id="nombreProyecto" type="text" placeholder="Ej. Nombrario del grupo" /></label>
+            <label>Campo formativo<select id="campo"><option>Lenguajes</option><option>Saberes y Pensamiento Científico</option><option>Ética, Naturaleza y Sociedades</option><option>De lo Humano y lo Comunitario</option></select></label>
+            <label>Libro y páginas<input id="libro" type="text" placeholder="Ej. Proyectos de Aula, págs. 20-27" /></label>
+            <label>Metodología<select id="metodologia"><option>Aprendizaje Basado en Proyectos Comunitarios</option><option>Aprendizaje Basado en Proyectos</option><option>Aprendizaje Basado en Problemas</option><option>Indagación STEAM</option><option>Aprendizaje Servicio</option></select></label>
+          </div>
+          <label>Justificación<textarea id="justificacion" rows="4" placeholder="¿Por qué se trabajará este proyecto?"></textarea></label>
+          <label>Producto final<textarea id="productoFinal" rows="3" placeholder="Describe el producto o evidencia final."></textarea></label>
+          <div class="grid grid-2">
+            <label>Procesos de Desarrollo de Aprendizaje (PDA)<textarea id="pda" rows="6" placeholder="Un PDA por línea."></textarea></label>
+            <label>Ejes articuladores<textarea id="ejes" rows="6" placeholder="Ej. Inclusión, pensamiento crítico..."></textarea></label>
+          </div>
+          <label>Vinculación sugerida<textarea id="vinculacion" rows="4" placeholder="Relación con otros campos formativos."></textarea></label>
+        </section>
+
+        <section id="secuencia" class="panel section-card">
+          <div class="section-heading">
+            <div><span class="step">Paso 3</span><h2>Secuencia diaria</h2></div>
+            <button id="btnAgregarDia" class="btn small primary" type="button">+ Agregar día</button>
+          </div>
+          <p class="muted">Cada día conserva la estructura Inicio → Desarrollo → Cierre, como en tu formato de planeación.</p>
+          <div id="diasContainer" class="days-list"></div>
+        </section>
+
+        <section id="evaluacion" class="panel section-card">
+          <div class="section-heading">
+            <div><span class="step">Paso 4</span><h2>Evaluación formativa</h2></div>
+            <button id="btnAgregarCriterio" class="btn small primary" type="button">+ Criterio</button>
+          </div>
+          <div id="criteriosContainer"></div>
+        </section>
+
+        <section id="reflexion" class="panel section-card">
+          <div class="section-heading"><div><span class="step">Paso 5</span><h2>Reflexión y adecuaciones</h2></div></div>
+          <div class="grid grid-2">
+            <label>Logros alcanzados<textarea id="logros" rows="4"></textarea></label>
+            <label>Dificultades y retos<textarea id="dificultades" rows="4"></textarea></label>
+            <label>Adecuaciones realizadas<textarea id="adecuaciones" rows="4"></textarea></label>
+            <label>Notas para el siguiente mes<textarea id="notas" rows="4"></textarea></label>
+          </div>
+        </section>
+
+        <div class="bottom-actions no-print">
+          <button id="btnVistaPrevia" class="btn primary">Generar vista previa</button>
+          <button id="btnLimpiar" class="btn danger">Limpiar todo</button>
+        </div>
+      </div>
+
+      <section id="previewView" class="preview hidden">
+        <div class="preview-toolbar no-print">
+          <button id="btnVolver" class="btn ghost">← Volver a editar</button>
+          <button id="btnImprimir2" class="btn primary">Imprimir / Guardar PDF</button>
+        </div>
+        <article id="documento" class="paper"></article>
+      </section>
+    </section>
+  </main>
+
+  <template id="diaTemplate">
+    <article class="day-card">
+      <div class="day-header">
+        <div class="day-title-group">
+          <input class="dia-fecha" type="date" />
+          <input class="dia-fase" type="text" placeholder="Fase: Planeación e Identificación" />
+        </div>
+        <button class="icon-btn eliminar-dia" title="Eliminar día">×</button>
+      </div>
+      <div class="grid grid-3">
+        <label>Inicio<textarea class="dia-inicio" rows="5" placeholder="Rutina, activación, recuperación de saberes..."></textarea></label>
+        <label>Desarrollo<textarea class="dia-desarrollo" rows="5" placeholder="Actividades principales del proyecto..."></textarea></label>
+        <label>Cierre<textarea class="dia-cierre" rows="5" placeholder="Reflexión, puesta en común, evaluación..."></textarea></label>
+      </div>
+      <label>Materiales / tarea / notas<textarea class="dia-materiales" rows="2"></textarea></label>
+    </article>
+  </template>
+
+  <template id="criterioTemplate">
+    <div class="criterion-row">
+      <input class="crit-nombre" type="text" placeholder="Criterio" />
+      <input class="crit-esperado" type="text" placeholder="Nivel esperado" />
+      <input class="crit-desarrollo" type="text" placeholder="En desarrollo" />
+      <input class="crit-apoyo" type="text" placeholder="Requiere apoyo" />
+      <button class="icon-btn eliminar-criterio" title="Eliminar criterio">×</button>
+    </div>
+  </template>
+
+  <!-- ✨ Asistente IA flotante -->
+  <button id="btnAI" class="ai-fab no-print" title="Asistente IA">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="19" cy="5" r="3"/></svg>
+    <span>Asistente IA</span>
+  </button>
+
+  <div id="aiPanel" class="ai-panel no-print" aria-hidden="true">
+    <div class="ai-panel-header">
+      <div class="ai-panel-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Asistente IA Docente
+      </div>
+      <button id="btnCloseAI" class="ai-close" aria-label="Cerrar">×</button>
+    </div>
+
+    <div id="aiKeySetup" class="ai-setup">
+      <p class="ai-setup-text">Ingresa tu <strong>API Key de Gemini</strong> para comenzar.<br>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Obtén una gratis en Google AI Studio →</a></p>
+      <div class="ai-key-row">
+        <input id="aiKeyInput" type="password" placeholder="AIzaSy..." autocomplete="off" />
+        <button id="btnSaveKey" class="btn primary small">Guardar</button>
+      </div>
+    </div>
+
+    <div id="aiChat" class="ai-chat hidden">
+      <div id="aiMessages" class="ai-messages">
+        <div class="ai-msg ai-msg--bot">
+          <span>¡Hola! Soy Leo tu asistente de planeación. Cuéntame qué haremos hoy, si quieres puedes subir un PDF de un plan anterior para que lo tome en cuenta, algo en lo qye te quieras basar o cualquier cosa. Por ejemplo:<br><br></span>
+        </div>
+      </div>
+      <div id="aiAttachBadge" class="ai-attach-badge hidden"></div>
+      <div class="ai-input-row">
+        <input id="aiFileInput" type="file" accept=".pdf,.txt,.png,.jpg,.jpeg,.webp,.gif" style="display:none" />
+        <button id="aiAttachBtn" class="ai-attach-btn" title="Adjuntar archivo (PDF, TXT, imagen)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <textarea id="aiPromptInput" rows="2" placeholder="Describe tu planeación o sube un archivo..."></textarea>
+        <button id="btnSendAI" class="ai-send-btn" title="Enviar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="ai-key-change">
+        <button id="btnChangeKey" class="ai-link-btn">🔑 Cambiar API Key</button>
+      </div>
+    </div>
+  </div>
+  <div id="aiOverlay" class="ai-overlay hidden"></div>
+
+  <script src="env.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
