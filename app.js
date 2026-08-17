@@ -153,7 +153,7 @@ $("#btnGuardar").onclick = save;
 $("#btnCargar").onclick = load;
 $("#btnImprimir").onclick = () => {
   buildPreview();
-  setTimeout(() => print(), 150);
+  setTimeout(() => print(), 300);
 };
 $("#btnImprimir2").onclick = () => print();
 $("#btnVistaPrevia").onclick = buildPreview;
