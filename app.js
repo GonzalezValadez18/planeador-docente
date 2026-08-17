@@ -378,13 +378,8 @@ if ($("#btnSaveKey")) {
       toast("Ingresa una API Key válida.");
       return;
     }
-    if (val.startsWith("sk-")) {
-      localStorage.setItem("planeador_openai_key", val);
-      toast("API Key de ChatGPT guardada.");
-    } else {
-      localStorage.setItem("planeador_gemini_key", val);
-      toast("API Key de Gemini guardada.");
-    }
+    localStorage.setItem("planeador_gemini_key", val);
+    toast("API Key de Gemini guardada.");
     $("#aiKeySetup").classList.add("hidden");
     $("#aiChat").classList.remove("hidden");
   };
@@ -453,111 +448,17 @@ function buildSystemPrompt() {
 }
 
 function getApiKey() {
-  // 1. ChatGPT / OpenAI desde env.js
-  if (window.ENV && window.ENV.OPENAI_API_KEY && window.ENV.OPENAI_API_KEY.trim() && window.ENV.OPENAI_API_KEY.indexOf("YOUR_") === -1 && window.ENV.OPENAI_API_KEY.trim().startsWith("sk-")) {
-    return { provider: "openai", key: window.ENV.OPENAI_API_KEY.trim() };
-  }
-  // 2. ChatGPT / OpenAI desde localStorage
-  var storedOpenAI = localStorage.getItem("planeador_openai_key");
-  if (storedOpenAI && storedOpenAI.trim()) {
-    return { provider: "openai", key: storedOpenAI.trim() };
-  }
-  // 3. Gemini desde env.js
+  // 1. Gemini desde env.js
   if (window.ENV && window.ENV.GEMINI_API_KEY && window.ENV.GEMINI_API_KEY.trim()) {
     return { provider: "gemini", key: window.ENV.GEMINI_API_KEY.trim() };
   }
-  // 4. Gemini desde localStorage
+  // 2. Gemini desde localStorage
   var storedGemini = localStorage.getItem("planeador_gemini_key");
   if (storedGemini && storedGemini.trim()) {
     return { provider: "gemini", key: storedGemini.trim() };
   }
 
   return { provider: "none", key: "" };
-}
-
-async function callOpenAIAI(userMessage, fileParts, apiKey) {
-  var textContents = [];
-  var imageContents = [];
-
-  (fileParts || []).forEach(function (part) {
-    if (Array.isArray(part)) {
-      part.forEach(function (sub) {
-        if (sub.text) textContents.push(sub.text);
-        if (sub.inlineData) {
-          imageContents.push({
-            type: "image_url",
-            image_url: { url: "data:" + (sub.inlineData.mimeType || "image/png") + ";base64," + sub.inlineData.data }
-          });
-        }
-      });
-    } else {
-      if (part.text) textContents.push(part.text);
-      if (part.inlineData) {
-        imageContents.push({
-          type: "image_url",
-          image_url: { url: "data:" + (part.inlineData.mimeType || "image/png") + ";base64," + part.inlineData.data }
-        });
-      }
-    }
-  });
-
-  var promptText = "Solicitud del docente: " + userMessage;
-  if (textContents.length) {
-    promptText += "\n\n[ARCHIVOS Y DOCUMENTOS DE CONTEXTO ADJUNTOS]:\n" + textContents.join("\n\n");
-  }
-
-  var userContent = [{ type: "text", text: promptText }];
-  if (imageContents.length) {
-    userContent = userContent.concat(imageContents);
-  }
-
-  var body = {
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: buildSystemPrompt() },
-      { role: "user", content: userContent }
-    ],
-    temperature: 0.7,
-    max_tokens: 4096,
-    response_format: { type: "json_object" }
-  };
-
-  var res;
-  try {
-    res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + apiKey
-      },
-      body: JSON.stringify(body)
-    });
-  } catch (netErr) {
-    throw new Error("Error de red al conectar con ChatGPT (OpenAI). Revisa tu conexión a internet.");
-  }
-
-  var resText = await res.text();
-  var data;
-  try {
-    data = JSON.parse(resText);
-  } catch (e) {
-    throw new Error("Respuesta no válida recibida de ChatGPT.");
-  }
-
-  if (!res.ok) {
-    var msg = data?.error?.message || "Error " + res.status + " en ChatGPT API";
-    if (msg.indexOf("exceeded your current quota") !== -1 || msg.indexOf("insufficient_quota") !== -1) {
-      var errQuota = new Error("OPENAI_QUOTA_EXCEEDED");
-      errQuota.originalMessage = msg;
-      throw errQuota;
-    }
-    if (msg.indexOf("Incorrect API key") !== -1 || msg.indexOf("invalid_api_key") !== -1) {
-      msg = "La API Key de ChatGPT no es válida. Coloca una API Key correcta que empiece por 'sk-...'.";
-    }
-    throw new Error(msg);
-  }
-
-  return data?.choices?.[0]?.message?.content || "";
 }
 
 async function callGeminiDirect(body, apiKey) {
@@ -592,29 +493,6 @@ async function callGeminiDirect(body, apiKey) {
 
 async function callGeminiAI(userMessage, fileParts) {
   var keyObj = getApiKey();
-
-  // 1. Si la clave es de ChatGPT (OpenAI)
-  if (keyObj.provider === "openai") {
-    try {
-      return await callOpenAIAI(userMessage, fileParts, keyObj.key);
-    } catch (openAiErr) {
-      if (openAiErr.message === "OPENAI_QUOTA_EXCEEDED") {
-        // Intentar fallback a Gemini si hay clave disponible
-        var geminiKey = (window.ENV && window.ENV.GEMINI_API_KEY && window.ENV.GEMINI_API_KEY.trim()) || localStorage.getItem("planeador_gemini_key");
-        if (geminiKey && geminiKey.trim()) {
-          console.warn("Cuota de OpenAI agotada. Usando Google Gemini (Gratis)...");
-          var parts = [{ text: buildSystemPrompt() + "\n\nSolicitud del docente: " + userMessage }];
-          if (fileParts && fileParts.length) parts = parts.concat(fileParts);
-          var body = { contents: [{ role: "user", parts: parts }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } };
-          return await callGeminiDirect(body, geminiKey.trim());
-        }
-        throw new Error("ChatGPT (OpenAI) requiere saldo pagado en su plataforma de desarrolladores (platform.openai.com). Te recomendamos usar Google Gemini, la cual es 100% GRATUITA.");
-      }
-      throw openAiErr;
-    }
-  }
-
-  // 2. Si la clave es de Gemini o fallback por defecto
   var geminiApiKey = (keyObj.provider === "gemini" && keyObj.key) ? keyObj.key : ((window.ENV && window.ENV.GEMINI_API_KEY && window.ENV.GEMINI_API_KEY.trim()) || localStorage.getItem("planeador_gemini_key"));
   if (geminiApiKey && geminiApiKey.trim()) {
     var parts = [{ text: buildSystemPrompt() + "\n\nSolicitud del docente: " + userMessage }];
@@ -623,7 +501,7 @@ async function callGeminiAI(userMessage, fileParts) {
     return await callGeminiDirect(body, geminiApiKey.trim());
   }
 
-  throw new Error("No se ha configurado ninguna API Key válida. Agrega tu clave de ChatGPT o de Gemini.");
+  throw new Error("No se ha configurado ninguna API Key de Gemini. Agrega tu clave de Gemini.");
 }
 
 function parseAIJson(text) {

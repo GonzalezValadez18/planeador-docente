@@ -11,7 +11,7 @@ Aplicación web para la creación, gestión, generación asistida por IA e impre
 
 ### 2. Asistente IA Docente Inteligente ("Leo")
 - Generación automática de planeaciones didácticas completas.
-- Compatible con **ChatGPT (OpenAI API)** y **Google Gemini API**.
+- Compatible exclusivamente con **Google Gemini API**.
 - Lector multiformato de archivos adjuntos (**PDF, Word, Excel, TXT e imágenes**) para extraer dosificaciones semanales, contenidos, PDA y ejes articuladores.
 
 ### 3. Estructura Completa de Planeación Didáctica
@@ -45,7 +45,7 @@ Aplicación web para la creación, gestión, generación asistida por IA e impre
 ## 🤖 Uso del Asistente IA ("Leo")
 
 1. Haz clic en el botón flotante **Asistente IA** en la esquina inferior derecha.
-2. Ingresa tu API Key de ChatGPT (`sk-...`) o de Google Gemini.
+2. Ingresa tu API Key de Google Gemini.
 3. Adjunta tus documentos de referencia (dosificación semanal, programa sintético, guías o planes anteriores).
 4. Escribe lo que necesitas (ej. *"Genera la planeación de la Semana 1 según la dosificación adjunta"*).
 5. La IA completará todos los campos automáticamente.

@@ -17,7 +17,7 @@ educación primaria en México (Plan de Estudios 2022).
 
 2. ASISTENTE IA DOCENTE INTELIGENTE ("LEO")
    - Generación automática de planeaciones estructuradas en JSON.
-   - Compatible con API Keys de ChatGPT (OpenAI sk-...) y Google Gemini.
+   - Compatible exclusivamente con API Key de Google Gemini.
    - Lectura y análisis de archivos adjuntos (PDF, Word, Excel, TXT e imágenes) 
      para extraer dosificaciones semanales, contenidos, PDA y ejes articuladores.
 
@@ -53,7 +53,7 @@ educación primaria en México (Plan de Estudios 2022).
 ------------------------------------------------------------------------
 
 1. Haz clic en el botón flotante "Asistente IA" en la esquina inferior derecha.
-2. Ingresa tu API Key de ChatGPT (OpenAI) o Google Gemini.
+2. Ingresa tu API Key de Google Gemini.
 3. Adjunta tus archivos de referencia (dosificación semanal, programa sintético, guía o planeación previa).
 4. Pide la planeación deseada (ej. "Genera la planeación de la Semana 1 de acuerdo con la dosificación adjunta").
 5. La IA completará automáticamente todos los campos del formulario.
