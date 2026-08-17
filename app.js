@@ -227,12 +227,47 @@ function endPages(d) {
 
   return pagesHtml;
 }
+function fitPreviewToScreen() {
+  const doc = $("#documento");
+  const wrapper = $("#previewScaleWrapper");
+  const previewView = $("#previewView");
+  if (!doc || !wrapper || !previewView) return;
+  if (previewView.classList.contains("hidden")) return;
+
+  const DESKTOP_WIDTH = 1056; // 11in a 96 DPI
+  // Medimos el ancho disponible dentro del contenedor sin sobrepasar la pantalla
+  const availableWidth = wrapper.clientWidth || (window.innerWidth - 16);
+
+  if (availableWidth < DESKTOP_WIDTH) {
+    const scale = availableWidth / DESKTOP_WIDTH;
+    doc.style.width = DESKTOP_WIDTH + "px";
+    doc.style.transform = `scale(${scale})`;
+    doc.style.transformOrigin = "0 0";
+    doc.style.margin = "0";
+
+    const unscaledHeight = doc.offsetHeight;
+    wrapper.style.height = Math.ceil(unscaledHeight * scale) + "px";
+  } else {
+    doc.style.width = "";
+    doc.style.transform = "none";
+    doc.style.transformOrigin = "";
+    doc.style.margin = "0 auto";
+    wrapper.style.height = "";
+  }
+}
+
+window.addEventListener("resize", fitPreviewToScreen);
+window.addEventListener("orientationchange", () => setTimeout(fitPreviewToScreen, 100));
+
 function buildPreview() {
   const d = collect();
   $("#documento").innerHTML = page1(d) + page2(d) + dayPages(d) + endPages(d);
   $("#formView").classList.add("hidden");
   $("#previewView").classList.remove("hidden");
   scrollTo(0, 0);
+  fitPreviewToScreen();
+  requestAnimationFrame(fitPreviewToScreen);
+  setTimeout(fitPreviewToScreen, 80);
 }
 function updateProgress() {
   const vals = ids.map((id) => $("#" + id).value.trim()),
@@ -256,11 +291,15 @@ $("#btnImprimir").onclick = () => {
   setTimeout(() => print(), 300);
 };
 $("#btnImprimir2").onclick = () => print();
+if ($("#btnImprimir3")) $("#btnImprimir3").onclick = () => print();
 $("#btnVistaPrevia").onclick = buildPreview;
-$("#btnVolver").onclick = () => {
+const handleVolver = () => {
   $("#previewView").classList.add("hidden");
   $("#formView").classList.remove("hidden");
+  if ($("#previewScaleWrapper")) $("#previewScaleWrapper").style.height = "";
 };
+$("#btnVolver").onclick = handleVolver;
+if ($("#btnVolver2")) $("#btnVolver2").onclick = handleVolver;
 $("#btnLimpiar").onclick = clearAll;
 $("#btnPlantillaEjemplo").onclick = example;
 function updatePeriodText() {

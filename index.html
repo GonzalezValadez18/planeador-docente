@@ -179,10 +179,12 @@
 
         <section id="previewView" class="preview hidden">
           <div class="preview-toolbar no-print">
-            <button id="btnVolver" class="btn ghost">← Volver a editar</button>
-            <button id="btnImprimir2" class="btn primary">Imprimir / Guardar PDF</button>
+            <button id="btnVolver" class="btn btn-volver">← Volver a editar</button>
+            <button id="btnImprimir2" class="btn btn-imprimir">Imprimir / Guardar PDF</button>
           </div>
-          <article id="documento" class="paper"></article>
+          <div id="previewScaleWrapper" class="preview-scale-wrapper">
+            <article id="documento" class="paper"></article>
+          </div>
         </section>
       </section>
     </main>
